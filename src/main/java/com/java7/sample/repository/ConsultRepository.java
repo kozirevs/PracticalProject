@@ -8,12 +8,13 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
+import javax.persistence.TypedQuery;
 import java.util.List;
 
 public class ConsultRepository {
+    SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
 
     public Consult saveConsult(Consult consult) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = session.beginTransaction();
         Long id = (Long) session.save(consult);
@@ -24,31 +25,28 @@ public class ConsultRepository {
     }
 
     public List<Consult> findAllConsults() {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
-        List<Consult> resultList = session.createQuery("FROM Consult").list();
+        List<Consult> resultList = session.createQuery("FROM Consult", Consult.class).list();
         session.close();
         return resultList;
     }
 
     public List<Vet> findAllVetsByConsults() {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
-        List<Vet> resultList = session.createQuery("SELECT v FROM Consult c JOIN c.vet v").list();
+        List<Vet> resultList = session.createQuery("SELECT v FROM Consult c JOIN c.vet v", Vet.class).list();
         session.close();
         return resultList;
     }
 
     public List<Pet> findAllPetsByConsults() {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
-        List<Pet> resultList = session.createQuery("SELECT p FROM Consult c JOIN c.pet p").list();
+        TypedQuery<Pet> query = session.createQuery("SELECT p FROM Consult c JOIN c.pet p", Pet.class);
+        List<Pet> resultList = query.getResultList();
         session.close();
         return resultList;
     }
 
     public Consult findById(Long consultId) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Consult result = session.find(Consult.class, consultId);
         session.close();
@@ -57,7 +55,6 @@ public class ConsultRepository {
 
 
     public void deleteConsult(Consult consult) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = session.beginTransaction();
         session.delete(consult);
@@ -66,7 +63,6 @@ public class ConsultRepository {
     }
 
     public void updateConsult(Consult consult) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = session.beginTransaction();
         session.update(consult);

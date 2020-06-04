@@ -9,9 +9,9 @@ import org.hibernate.Transaction;
 import java.util.List;
 
 public class VetRepository {
+    SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
 
     public Vet saveVet(Vet vet) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = session.beginTransaction();
         Long id = (Long) session.save(vet);
@@ -22,15 +22,13 @@ public class VetRepository {
     }
 
     public List<Vet> findAllVets() {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
-        List<Vet> resultList = session.createQuery("FROM Vet").list();
+        List<Vet> resultList = session.createQuery("FROM Vet", Vet.class).list();
         session.close();
         return resultList;
     }
 
     public Vet findById(Long vetId) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Vet result = session.find(Vet.class, vetId);
         session.close();
@@ -39,7 +37,6 @@ public class VetRepository {
 
 
     public void deleteVet(Vet vet) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = session.beginTransaction();
         session.delete(vet);
@@ -48,7 +45,6 @@ public class VetRepository {
     }
 
     public void updateVet(Vet vet) {
-        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         Session session = sessionFactory.openSession();
         Transaction transaction = session.beginTransaction();
         session.update(vet);
