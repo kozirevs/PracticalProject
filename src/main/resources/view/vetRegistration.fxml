@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="700.0" style="-fx-background-color: #2E3348;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.java7.sample.controllers.VetController">
+   <children>
+      <AnchorPane layoutY="84.0" prefHeight="516.0" prefWidth="700.0" style="-fx-background-color: #fafafa;">
+         <children>
+            <Button fx:id="addVetButton" layoutX="374.0" layoutY="53.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="100.0" text="Add Vet">
+               <font>
+                  <Font name="Arial Bold" size="15.0" />
+               </font>
+            </Button>
+            <TextField fx:id="vetIdField" layoutX="483.0" layoutY="107.0" prefHeight="34.0" prefWidth="63.0" promptText="Vet Id">
+               <font>
+                  <Font size="17.0" />
+               </font>
+            </TextField>
+            <TextField fx:id="firstNameField" layoutX="45.0" layoutY="53.0" prefHeight="34.0" prefWidth="281.0" promptText="First Name">
+               <font>
+                  <Font size="17.0" />
+               </font>
+            </TextField>
+            <Button fx:id="updateVetButton" layoutX="374.0" layoutY="107.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="100.0" text="Update Vet">
+               <font>
+                  <Font name="Arial Bold" size="15.0" />
+               </font>
+            </Button>
+            <TextField fx:id="lastNameField" layoutX="45.0" layoutY="107.0" prefHeight="34.0" prefWidth="281.0" promptText="Last Name">
+               <font>
+                  <Font size="17.0" />
+               </font>
+            </TextField>
+            <TextField fx:id="addressField" layoutX="45.0" layoutY="161.0" prefHeight="34.0" prefWidth="281.0" promptText="Address">
+               <font>
+                  <Font size="17.0" />
+               </font>
+            </TextField>
+            <TextField fx:id="specialityField" layoutX="45.0" layoutY="215.0" prefHeight="34.0" prefWidth="281.0" promptText="Speciality">
+               <font>
+                  <Font size="17.0" />
+               </font>
+            </TextField>
+            <Button fx:id="deleteVetButton" layoutX="374.0" layoutY="161.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="100.0" text="Delete Vet">
+               <font>
+                  <Font name="Arial Bold" size="15.0" />
+               </font>
+            </Button>
+            <Button fx:id="viewVetsButton" layoutX="555.0" layoutY="53.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="100.0" text="View Vets">
+               <font>
+                  <Font name="Arial Bold" size="15.0" />
+               </font>
+            </Button>
+            <Button fx:id="crudPetButton" layoutX="555.0" layoutY="107.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="100.0" text="PET CRUD">
+               <font>
+                  <Font name="Arial Bold" size="15.0" />
+               </font>
+            </Button>
+            <Button fx:id="crudConsultButton" layoutX="531.0" layoutY="161.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="124.0" text="Consult CRUD">
+               <font>
+                  <Font name="Arial Bold" size="15.0" />
+               </font>
+            </Button>
+            <TableView fx:id="vetsTableView" layoutX="44.0" layoutY="269.0" prefHeight="245.0" prefWidth="612.0">
+              <columns>
+                <TableColumn fx:id="vetIdColumn" prefWidth="39.0" text="Vet Id" />
+                <TableColumn fx:id="firstNameColumn" prefWidth="92.0" text="First Name" />
+                  <TableColumn fx:id="lastNameColumn" prefWidth="94.0" text="Last Name" />
+                  <TableColumn fx:id="addressColumn" prefWidth="165.0" text="Address" />
+                  <TableColumn fx:id="specialityColumn" prefWidth="220.0" text="Speciality" />
+              </columns>
+            </TableView>
+            <Text fx:id="operationResultText" fill="RED" layoutX="374.0" layoutY="238.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="281.0">
+               <font>
+                  <Font size="17.0" />
+               </font>
+            </Text>
+            <Label layoutX="253.0" layoutY="14.0" prefHeight="23.0" prefWidth="195.0" text="VET REGISTRATION">
+               <font>
+                  <Font name="Arial" size="20.0" />
+               </font>
+            </Label>
+         </children>
+      </AnchorPane>
+      <Label layoutX="74.0" layoutY="20.0" prefHeight="47.0" prefWidth="553.0" text="Pet Clinic management system" textFill="WHITE">
+         <font>
+            <Font name="Arial" size="40.0" />
+         </font>
+      </Label>
+   </children>
+</AnchorPane>
