@@ -5,7 +5,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.flywaydb.core.Flyway;
 import org.h2.tools.Server;
 
 import java.io.IOException;
@@ -27,12 +26,6 @@ public class Main extends Application {
         Server server = Server.createWebServer().start();
         System.out.println("port: " + server.getPort());
         System.out.println("status: " + server.getStatus());
-
-        Flyway flyway = Flyway.configure()
-                .dataSource("jdbc:h2:file:/Users/akoz/Documents/test.mv.db", "sa", "password")
-                .load();
-        flyway.clean();
-        flyway.migrate();
 
         launch(args);
     }

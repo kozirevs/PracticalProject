@@ -5,7 +5,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "consults")
-public class Consult {
+public class Consult  implements Domain {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
