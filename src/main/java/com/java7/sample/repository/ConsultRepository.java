@@ -11,6 +11,8 @@ import org.hibernate.Transaction;
 import javax.persistence.TypedQuery;
 import java.util.List;
 
+import static com.java7.sample.repository.sql.ConsultSQL.SELECT_ALL_VET;
+
 public class ConsultRepository {
     SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
 
@@ -33,7 +35,7 @@ public class ConsultRepository {
 
     public List<Vet> findAllVetsByConsults() {
         Session session = sessionFactory.openSession();
-        List<Vet> resultList = session.createQuery("SELECT v FROM Consult c JOIN c.vet v", Vet.class).list();
+        List<Vet> resultList = session.createQuery(SELECT_ALL_VET, Vet.class).list();
         session.close();
         return resultList;
     }

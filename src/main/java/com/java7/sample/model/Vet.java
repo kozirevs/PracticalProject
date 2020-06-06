@@ -6,7 +6,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "vets")
-public class Vet {
+public class Vet  implements Domain {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

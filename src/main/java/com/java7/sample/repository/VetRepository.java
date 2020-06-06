@@ -2,6 +2,7 @@ package com.java7.sample.repository;
 
 import com.java7.sample.HibernateUtil;
 import com.java7.sample.model.Vet;
+import com.java7.sample.repository.helper.RepositoryServant;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -10,7 +11,7 @@ import java.util.List;
 
 public class VetRepository {
     SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
-
+    RepositoryServant repositoryServant = new RepositoryServant();
     public Vet saveVet(Vet vet) {
         Session session = sessionFactory.openSession();
         Transaction transaction = session.beginTransaction();
@@ -45,10 +46,6 @@ public class VetRepository {
     }
 
     public void updateVet(Vet vet) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        session.update(vet);
-        transaction.commit();
-        session.close();
+        repositoryServant.updateDomain(vet);
     }
 }

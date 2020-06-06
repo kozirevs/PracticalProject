@@ -6,21 +6,42 @@ import com.java7.sample.model.Vet;
 import com.java7.sample.repository.ConsultRepository;
 import com.java7.sample.repository.PetRepository;
 import com.java7.sample.repository.VetRepository;
+import com.java7.sample.service.factory.ConsultFactory;
+import com.java7.sample.service.validator.ConsultServiceValidator;
 import org.h2.util.StringUtils;
 
 import java.util.Date;
 import java.util.List;
 
 public class ConsultService {
-    private final ConsultRepository consultRepository = new ConsultRepository();
-    private final PetRepository petRepository = new PetRepository();
-    private final VetRepository vetRepository = new VetRepository();
+    private final ConsultRepository consultRepository;
+    private final PetRepository petRepository;
+    private final VetRepository vetRepository;
+    private final ConsultFactory consultFactory;
+    private final ConsultServiceValidator consultServiceValidator;
 
-    public String addConsult(Long vetId, Long petId, Date date, String description) {
-        // Pet validator
-        if (vetId == null || petId == null || date == null || StringUtils.isNullOrEmpty(description)) {
-            return "WRONG DATA, CORRECT INPUT !";
+    public ConsultService(ConsultRepository consultRepository
+            , PetRepository petRepository, VetRepository vetRepository,
+                          ConsultFactory consultFactory,
+                          ConsultServiceValidator consultServiceValidator) {
+        this.consultRepository = consultRepository;
+        this.petRepository = petRepository;
+        this.vetRepository = vetRepository;
+        this.consultFactory = consultFactory;
+        this.consultServiceValidator = consultServiceValidator;
+
+    }
+
+    public String addConsult(Long vetId, Long petId, Date date,
+                             String description) {
+
+        String check = consultServiceValidator
+                .checkDataCorrect(vetId, petId, date, description);
+        if(null != check){
+            return check;
         }
+
+
         Vet vet = vetRepository.findById(vetId);
         Pet pet = petRepository.findById(petId);
 
@@ -28,11 +49,7 @@ public class ConsultService {
             return "WRONG ID, CORRECT INPUT !";
         }
         //UserFactory :: Factory pattern;
-        Consult consult = new Consult();
-        consult.setVet(vet);
-        consult.setPet(pet);
-        consult.setDate(date);
-        consult.setDescription(description);
+        Consult consult = consultFactory.createConsult(vet, pet, date, description);
 
         Long insertConsultId = consultRepository.saveConsult(consult).getConsultId();
         return "Consult WITH ID: " + insertConsultId + " IS ADDED !";

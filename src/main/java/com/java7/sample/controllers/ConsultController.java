@@ -3,7 +3,12 @@ package com.java7.sample.controllers;
 import com.java7.sample.model.Consult;
 import com.java7.sample.model.Pet;
 import com.java7.sample.model.Vet;
+import com.java7.sample.repository.ConsultRepository;
+import com.java7.sample.repository.PetRepository;
+import com.java7.sample.repository.VetRepository;
 import com.java7.sample.service.ConsultService;
+import com.java7.sample.service.factory.ConsultFactory;
+import com.java7.sample.service.validator.ConsultServiceValidator;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -21,6 +26,7 @@ import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -102,7 +108,11 @@ public class ConsultController {
 
     @FXML
     void initialize() {
-        ConsultService consultService = new ConsultService();
+        ConsultService consultService = new ConsultService(new ConsultRepository()
+                , new PetRepository(),
+                new VetRepository(),
+                new ConsultFactory(),
+                new ConsultServiceValidator());
 
         addConsultButton.setOnAction(event -> {
             System.out.println("consult insert in progress");
@@ -139,10 +149,10 @@ public class ConsultController {
         });
 
         viewConsultsButton.setOnAction(event -> {
-            System.out.println("select consults in progress");
+            System.out.println("select consults in progress ");
 
-            consultIdColumn.setCellValueFactory(new PropertyValueFactory<Consult, Long>("consultId"));
-            dateColumn.setCellValueFactory(new PropertyValueFactory<Consult, Date>("date"));
+            consultIdColumn.setCellValueFactory(new PropertyValueFactory<>("consultId"));
+            dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
             descriptionColumn.setCellValueFactory(new PropertyValueFactory<Consult, String>("description"));
             vetFirstNameColumn.setCellValueFactory(new PropertyValueFactory<Vet, String>("firstName"));
             vetLastNameColumn.setCellValueFactory(new PropertyValueFactory<Vet, String>("lastName"));
