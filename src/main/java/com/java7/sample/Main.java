@@ -31,7 +31,6 @@ public class Main extends Application {
         Flyway flyway = Flyway.configure()
                 .dataSource("jdbc:h2:file:/Users/akoz/Documents/test.mv.db", "sa", "password")
                 .load();
-        flyway.clean();
         flyway.migrate();
 
         launch(args);
