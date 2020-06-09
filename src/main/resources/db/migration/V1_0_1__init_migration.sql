@@ -1,8 +1,25 @@
-CREATE TABLE IF NOT EXISTS `book` (
-    `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `name` varchar(MAX),
-    `annotation` varchar(MAX),
-    `author` varchar(2000),
-    `year` varchar(1000),
-    `isbn` varchar(200)
+CREATE TABLE IF NOT EXISTS vets (
+    vetId INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    firstName VARCHAR(50) NOT NULL,
+    lastName VARCHAR(50) NOT NULL,
+    address VARCHAR(200) NOT NULL,
+    speciality VARCHAR(200) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS pets (
+    petId INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    race VARCHAR(50) NOT NULL,
+    dateOfBirth DATE NOT NULL,
+    isVaccinated VARCHAR(20) NOT NULL,
+    ownerName VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS consults (
+    consultId INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    date DATE NOT NULL,
+    description VARCHAR(200) NOT NULL,
+    vetId INT NOT NULL,
+    petId INT NOT NULL,
+    CONSTRAINT fk_consult_vet FOREIGN KEY (vetId) REFERENCES vets (vetId),
+    CONSTRAINT fk_consult_pet FOREIGN KEY (petId) REFERENCES pets (petId)
 );
