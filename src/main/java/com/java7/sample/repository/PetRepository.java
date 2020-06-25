@@ -4,22 +4,12 @@ import com.java7.sample.HibernateUtil;
 import com.java7.sample.model.Pet;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 
+import javax.persistence.TypedQuery;
 import java.util.List;
 
 public class PetRepository {
     SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
-
-    public Pet savePet(Pet pet) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        Long id = (Long) session.save(pet);
-        pet.setPetId(id);
-        transaction.commit();
-        session.close();
-        return pet;
-    }
 
     public List<Pet> findAllPets() {
         Session session = sessionFactory.openSession();
@@ -28,27 +18,18 @@ public class PetRepository {
         return resultList;
     }
 
-    public Pet findById(Long petId) {
+    public Pet findById(Long id) {
         Session session = sessionFactory.openSession();
-        Pet result = session.find(Pet.class, petId);
+        Pet result = session.find(Pet.class, id);
         session.close();
         return result;
     }
 
-
-    public void deletePet(Pet pet) {
+    public List<Pet> findAllPetsByConsults() {
         Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        session.delete(pet);
-        transaction.commit();
+        TypedQuery<Pet> query = session.createQuery("SELECT p FROM Consult c JOIN c.pet p", Pet.class);
+        List<Pet> resultList = query.getResultList();
         session.close();
-    }
-
-    public void updatePet(Pet pet) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        session.update(pet);
-        transaction.commit();
-        session.close();
+        return resultList;
     }
 }

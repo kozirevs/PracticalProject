@@ -7,12 +7,12 @@ import java.util.Set;
 
 @Entity
 @Table(name = "pets")
-public class Pet {
+public class Pet implements Model {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "petId")
-    private Long petId;
+    @Column(name = "id")
+    private Long id;
 
     @Column(name = "race")
     private String race;
@@ -21,7 +21,7 @@ public class Pet {
     private Date dateOfBirth;
 
     @Column(name = "isVaccinated")
-    private String isVaccinated;
+    private Boolean isVaccinated;
 
     @Column(name = "ownerName")
     private String ownerName;
@@ -29,12 +29,12 @@ public class Pet {
     @OneToMany(mappedBy = "pet")
     private Set<Consult> consults = new HashSet<>();
 
-    public Long getPetId() {
-        return petId;
+    public Long getId() {
+        return id;
     }
 
-    public void setPetId(Long petId) {
-        this.petId = petId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getRace() {
@@ -53,11 +53,11 @@ public class Pet {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public String getIsVaccinated() {
+    public Boolean getIsVaccinated() {
         return isVaccinated;
     }
 
-    public void setIsVaccinated(String isVaccinated) {
+    public void setIsVaccinated(Boolean isVaccinated) {
         this.isVaccinated = isVaccinated;
     }
 
@@ -80,11 +80,35 @@ public class Pet {
     @Override
     public String toString() {
         return "Pet{" +
-                "petId=" + petId +
+                "id=" + id +
                 ", race='" + race + '\'' +
                 ", dateOfBirth=" + dateOfBirth +
                 ", isVaccinated=" + isVaccinated +
                 ", ownerName='" + ownerName + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Pet pet = (Pet) o;
+
+        if (id != null ? !id.equals(pet.id) : pet.id != null) return false;
+        if (race != null ? !race.equals(pet.race) : pet.race != null) return false;
+        if (dateOfBirth != null ? !dateOfBirth.equals(pet.dateOfBirth) : pet.dateOfBirth != null) return false;
+        if (isVaccinated != null ? !isVaccinated.equals(pet.isVaccinated) : pet.isVaccinated != null) return false;
+        return ownerName != null ? ownerName.equals(pet.ownerName) : pet.ownerName == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (race != null ? race.hashCode() : 0);
+        result = 31 * result + (dateOfBirth != null ? dateOfBirth.hashCode() : 0);
+        result = 31 * result + (isVaccinated != null ? isVaccinated.hashCode() : 0);
+        result = 31 * result + (ownerName != null ? ownerName.hashCode() : 0);
+        return result;
     }
 }

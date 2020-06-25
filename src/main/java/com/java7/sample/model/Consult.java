@@ -5,12 +5,12 @@ import java.util.Date;
 
 @Entity
 @Table(name = "consults")
-public class Consult {
+public class Consult implements Model {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "consultId")
-    private Long consultId;
+    @Column(name = "id")
+    private Long id;
 
     @Column(name = "date")
     private Date date;
@@ -26,12 +26,12 @@ public class Consult {
     @JoinColumn(name = "petId")
     private Pet pet;
 
-    public Long getConsultId() {
-        return consultId;
+    public Long getId() {
+        return id;
     }
 
-    public void setConsultId(Long consultId) {
-        this.consultId = consultId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Date getDate() {
@@ -69,9 +69,29 @@ public class Consult {
     @Override
     public String toString() {
         return "Consult{" +
-                "consultId=" + consultId +
+                "id=" + id +
                 ", date=" + date +
                 ", description='" + description + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Consult consult = (Consult) o;
+
+        if (id != null ? !id.equals(consult.id) : consult.id != null) return false;
+        if (date != null ? !date.equals(consult.date) : consult.date != null) return false;
+        return description != null ? description.equals(consult.description) : consult.description == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (date != null ? date.hashCode() : 0);
+        result = 31 * result + (description != null ? description.hashCode() : 0);
+        return result;
     }
 }

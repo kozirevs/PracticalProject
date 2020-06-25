@@ -1,7 +1,10 @@
 package com.java7.sample.controllers;
 
 import com.java7.sample.model.Vet;
+import com.java7.sample.repository.ModelRepository;
+import com.java7.sample.repository.VetRepository;
 import com.java7.sample.service.VetService;
+import com.java7.sample.service.factory.VetFactory;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -15,7 +18,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import org.h2.util.StringUtils;
 
 import java.io.IOException;
 import java.net.URL;
@@ -87,19 +89,17 @@ public class VetController {
 
     @FXML
     void initialize() {
-        VetService vetService = new VetService();
+        VetService vetService = new VetService(new ModelRepository(), new VetRepository(), new VetFactory());
 
         addVetButton.setOnAction(event -> {
-            System.out.println("vet insert in progress");
+            System.out.println( "VET INSERT IN PROGRESS");
 
-            String firstNameText = firstNameField.getText().trim();
-            String lastNameText = lastNameField.getText().trim();
-            String addressText = addressField.getText().trim();
-            String specialityText = specialityField.getText().trim();
+            String firstNameText = firstNameField.getText();
+            String lastNameText = lastNameField.getText();
+            String addressText = addressField.getText();
+            String specialityText = specialityField.getText();
 
             String result = vetService.addVet(firstNameText, lastNameText, addressText, specialityText);
-            System.out.println(result);
-
             operationResultText.setText(result);
 
             firstNameField.clear();
@@ -109,55 +109,40 @@ public class VetController {
         });
 
         viewVetsButton.setOnAction(event -> {
-            System.out.println("select vets in progress");
+            System.out.println("SELECT VETS IN PROGRESS");
 
-            vetIdColumn.setCellValueFactory(new PropertyValueFactory<Vet, Long>("vetId"));
-            firstNameColumn.setCellValueFactory(new PropertyValueFactory<Vet, String>("firstName"));
-            lastNameColumn.setCellValueFactory(new PropertyValueFactory<Vet, String>("lastName"));
-            addressColumn.setCellValueFactory(new PropertyValueFactory<Vet, String>("address"));
-            specialityColumn.setCellValueFactory(new PropertyValueFactory<Vet, String>("speciality"));
+            vetIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+            firstNameColumn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
+            lastNameColumn.setCellValueFactory(new PropertyValueFactory<>("lastName"));
+            addressColumn.setCellValueFactory(new PropertyValueFactory<>("address"));
+            specialityColumn.setCellValueFactory(new PropertyValueFactory<>("speciality"));
 
             List<Vet> vetList = vetService.viewVets();
-            if (vetList.isEmpty()) {
-                operationResultText.setText("VET DATABASE IS EMPTY");
-            }
             ObservableList<Vet> vetObservableList = FXCollections.observableArrayList(vetList);
             vetsTableView.setItems(vetObservableList);
         });
 
         deleteVetButton.setOnAction(event -> {
-            System.out.println("delete vet in progress");
+            System.out.println("DELETE VET IN PROGRESS");
 
-            String vetIdText = vetIdField.getText().trim();
-            Long vetId = null;
-            if (StringUtils.isNumber(vetIdText)) {
-                vetId = Long.parseLong(vetIdText);
-            }
+            String idText = vetIdField.getText().trim();
 
-            String result = vetService.removeVet(vetId);
-            System.out.println(result);
-
+            String result = vetService.removeVet(idText);
             operationResultText.setText(result);
 
             vetIdField.clear();
         });
 
         updateVetButton.setOnAction(event -> {
-            System.out.println("update vet in progress");
+            System.out.println("UPDATE VET IN PROGRESS");
 
-            String vetIdText = vetIdField.getText().trim();
-            Long vetId = null;
-            if (StringUtils.isNumber(vetIdText)) {
-                vetId = Long.parseLong(vetIdText);
-            }
-            String firstNameText = firstNameField.getText().trim();
-            String lastNameText = lastNameField.getText().trim();
-            String addressText = addressField.getText().trim();
-            String specialityText = specialityField.getText().trim();
+            String idText = vetIdField.getText();
+            String firstNameText = firstNameField.getText();
+            String lastNameText = lastNameField.getText();
+            String addressText = addressField.getText();
+            String specialityText = specialityField.getText();
 
-            String result = vetService.updateVet(vetId, firstNameText, lastNameText, addressText, specialityText);
-            System.out.println(result);
-
+            String result = vetService.updateVet(idText, firstNameText, lastNameText, addressText, specialityText);
             operationResultText.setText(result);
 
             vetIdField.clear();
@@ -186,7 +171,8 @@ public class VetController {
 
             Parent consultRegistrationForm = null;
             try {
-                consultRegistrationForm = FXMLLoader.load(getClass().getResource("/view/consultRegistration.fxml"));
+                consultRegistrationForm = FXMLLoader.load(getClass()
+                        .getResource("/view/consultRegistration.fxml"));
             } catch (IOException e) {
                 e.printStackTrace();
             }

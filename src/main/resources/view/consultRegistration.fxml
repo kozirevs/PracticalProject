@@ -45,11 +45,15 @@
                         <Font name="Arial Bold" size="15.0" />
                     </font>
                 </Button>
-                <TableView fx:id="consultsTableView" layoutX="44.0" layoutY="269.0" prefHeight="245.0" prefWidth="233.0">
+                <TableView fx:id="consultsTableView" layoutX="44.0" layoutY="269.0" prefHeight="245.0" prefWidth="614.0">
                     <columns>
                         <TableColumn fx:id="consultIdColumn" prefWidth="43.0" text="Con Id" />
                         <TableColumn fx:id="dateColumn" prefWidth="94.0" text="Date" />
                         <TableColumn fx:id="descriptionColumn" prefWidth="94.0" text="Description" />
+                        <TableColumn fx:id="vetFirstNameColumn" prefWidth="90.0" text="Vet First Name" />
+                        <TableColumn fx:id="vetLastNameColumn" prefWidth="88.0" text="Vet Last Name" />
+                        <TableColumn fx:id="petRaceColumn" prefWidth="104.0" text="Pet Race" />
+                        <TableColumn fx:id="petOwnerNameColumn" prefWidth="99.0" text="Pet Ownet Name" />
                     </columns>
                 </TableView>
                 <Text fx:id="operationResultText" fill="RED" layoutX="374.0" layoutY="238.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="281.0">
@@ -63,38 +67,26 @@
                     </font>
                 </Label>
                 <DatePicker fx:id="dateDatePicker" layoutX="45.0" layoutY="107.0" prefHeight="34.0" prefWidth="281.0" promptText="Date" style="-fx-font-size: 1.3em;" />
-            <TextField fx:id="vetIdField" layoutX="45.0" layoutY="53.0" prefHeight="34.0" prefWidth="124.0" promptText="Vet Id">
-               <font>
-                  <Font size="17.0" />
-               </font>
-            </TextField>
-            <TextField fx:id="petIdField" layoutX="202.0" layoutY="53.0" prefHeight="34.0" prefWidth="124.0" promptText="Pet Id">
-               <font>
-                  <Font size="17.0" />
-               </font>
-            </TextField>
-            <TextArea fx:id="descriptionArea" layoutX="45.0" layoutY="161.0" prefHeight="88.0" prefWidth="281.0" promptText="Description">
-               <font>
-                  <Font size="17.0" />
-               </font>
-            </TextArea>
-            <Button fx:id="crudPetButton" layoutX="555.0" layoutY="161.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="100.0" text="PET CRUD">
-               <font>
-                  <Font name="Arial Bold" size="15.0" />
-               </font>
-            </Button>
-            <TableView fx:id="vetTableView" layoutX="275.0" layoutY="269.0" prefHeight="245.0" prefWidth="179.0">
-              <columns>
-                        <TableColumn fx:id="vetFirstNameColumn" prefWidth="89.0" text="Vet First Name" />
-                        <TableColumn fx:id="vetLastNameColumn" prefWidth="88.0" text="Vet Last Name" />
-              </columns>
-            </TableView>
-            <TableView fx:id="petTableView" layoutX="452.0" layoutY="269.0" prefHeight="245.0" prefWidth="203.0">
-               <columns>
-                  <TableColumn fx:id="petRaceColumn" prefWidth="100.0" text="Pet Race" />
-                  <TableColumn fx:id="petOwnerNameColumn" prefWidth="101.0" text="Pet Owner Name" />
-               </columns>
-            </TableView>
+                <TextField fx:id="vetIdField" layoutX="45.0" layoutY="53.0" prefHeight="34.0" prefWidth="124.0" promptText="Vet Id">
+                    <font>
+                        <Font size="17.0" />
+                    </font>
+                </TextField>
+                <TextField fx:id="petIdField" layoutX="202.0" layoutY="53.0" prefHeight="34.0" prefWidth="124.0" promptText="Pet Id">
+                    <font>
+                        <Font size="17.0" />
+                    </font>
+                </TextField>
+                <TextArea fx:id="descriptionArea" layoutX="45.0" layoutY="161.0" prefHeight="88.0" prefWidth="281.0" promptText="Description">
+                    <font>
+                        <Font size="17.0" />
+                    </font>
+                </TextArea>
+                <Button fx:id="crudPetButton" layoutX="555.0" layoutY="161.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="100.0" text="PET CRUD">
+                    <font>
+                        <Font name="Arial Bold" size="15.0" />
+                    </font>
+                </Button>
             </children>
         </AnchorPane>
         <Label layoutX="74.0" layoutY="20.0" prefHeight="47.0" prefWidth="553.0" text="Pet Clinic management system" textFill="WHITE">

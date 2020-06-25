@@ -1,7 +1,10 @@
 package com.java7.sample.controllers;
 
 import com.java7.sample.model.Pet;
+import com.java7.sample.repository.ModelRepository;
+import com.java7.sample.repository.PetRepository;
 import com.java7.sample.service.PetService;
+import com.java7.sample.service.factory.PetFactory;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -12,13 +15,10 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import org.h2.util.StringUtils;
 
 import java.io.IOException;
 import java.net.URL;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -74,7 +74,7 @@ public class PetController {
     private TableColumn<Pet, String> ownerNameColumn;
 
     @FXML
-    private TableColumn<Pet, String> isVaccinatedColumn;
+    private TableColumn<Pet, Boolean> isVaccinatedColumn;
 
     @FXML
     private Text operationResultText;
@@ -87,27 +87,17 @@ public class PetController {
 
     @FXML
     void initialize() {
-        PetService petService = new PetService();
+        PetService petService = new PetService(new ModelRepository(), new PetRepository(), new PetFactory());
 
         addPetButton.setOnAction(event -> {
-            System.out.println("pet insert in progress");
+            System.out.println("PET INSERT IN PROGRESS");
 
-            String raceText = raceField.getText().trim();
-            String ownerNameText = ownerNameField.getText().trim();
-
-            LocalDate localDate = dateOfBirthDatePicker.getValue();
-            Date dateOfBirthDate = null;
-            if(localDate != null){
-                Instant instant = Instant.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()));
-                dateOfBirthDate = Date.from(instant);
-            }
-
+            String raceText = raceField.getText();
+            String ownerNameText = ownerNameField.getText();
+            LocalDate dateOfBirthLocalDate = dateOfBirthDatePicker.getValue();
             Boolean isVaccinatedBoolean = isVaccinatedCheckBox.isSelected();
-            String isVaccinatedText = isVaccinatedBoolean ? "YES" : "NO";
 
-            String result = petService.addPet(raceText, dateOfBirthDate, isVaccinatedText, ownerNameText);
-            System.out.println(result);
-
+            String result = petService.addPet(raceText, dateOfBirthLocalDate, isVaccinatedBoolean, ownerNameText);
             operationResultText.setText(result);
 
             raceField.clear();
@@ -117,63 +107,40 @@ public class PetController {
         });
 
         viewPetsButton.setOnAction(event -> {
-            System.out.println("select pets in progress");
+            System.out.println("SELECT PETS IN PROGRESS");
 
-            petIdColumn.setCellValueFactory(new PropertyValueFactory<Pet, Long>("petId"));
-            raceColumn.setCellValueFactory(new PropertyValueFactory<Pet, String>("race"));
-            dateOfBirthColumn.setCellValueFactory(new PropertyValueFactory<Pet, Date>("dateOfBirth"));
-            ownerNameColumn.setCellValueFactory(new PropertyValueFactory<Pet, String>("ownerName"));
-            isVaccinatedColumn.setCellValueFactory(new PropertyValueFactory<Pet, String>("isVaccinated"));
+            petIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+            raceColumn.setCellValueFactory(new PropertyValueFactory<>("race"));
+            dateOfBirthColumn.setCellValueFactory(new PropertyValueFactory<>("dateOfBirth"));
+            ownerNameColumn.setCellValueFactory(new PropertyValueFactory<>("ownerName"));
+            isVaccinatedColumn.setCellValueFactory(new PropertyValueFactory<>("isVaccinated"));
 
             List<Pet> petList = petService.viewPets();
-            if (petList.isEmpty()) {
-                operationResultText.setText("PET DATABASE IS EMPTY");
-            }
             ObservableList<Pet> petObservableList = FXCollections.observableArrayList(petList);
             petsTableView.setItems(petObservableList);
         });
 
         deletePetButton.setOnAction(event -> {
-            System.out.println("delete pet in progress");
+            System.out.println("DELETE PET IN PROGRESS");
 
-            String petIdText = petIdField.getText().trim();
-            Long petId = null;
-            if (StringUtils.isNumber(petIdText)) {
-                petId = Long.parseLong(petIdText);
-            }
+            String idText = petIdField.getText();
 
-            String result = petService.removePet(petId);
-            System.out.println(result);
-
+            String result = petService.removePet(idText);
             operationResultText.setText(result);
 
             petIdField.clear();
         });
 
         updatePetButton.setOnAction(event -> {
-            System.out.println("update pet in progress");
+            System.out.println("UPDATE PET IN PROGRESS");
 
-            String petIdText = petIdField.getText().trim();
-            Long petId = null;
-            if (StringUtils.isNumber(petIdText)) {
-                petId = Long.parseLong(petIdText);
-            }
-            String raceText = raceField.getText().trim();
-            String ownerNameText = ownerNameField.getText().trim();
-
-            LocalDate localDate = dateOfBirthDatePicker.getValue();
-            Date dateOfBirthDate = null;
-            if(localDate != null){
-                Instant instant = Instant.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()));
-                dateOfBirthDate = Date.from(instant);
-            }
-
+            String idText = petIdField.getText();
+            String raceText = raceField.getText();
+            LocalDate dateOfBirthLocalDate = dateOfBirthDatePicker.getValue();
             Boolean isVaccinatedBoolean = isVaccinatedCheckBox.isSelected();
-            String isVaccinatedText = isVaccinatedBoolean ? "YES" : "NO";
+            String ownerNameText = ownerNameField.getText();
 
-            String result = petService.updatePet(petId, raceText, dateOfBirthDate, isVaccinatedText, ownerNameText);
-            System.out.println(result);
-
+            String result = petService.updatePet(idText, raceText, dateOfBirthLocalDate, isVaccinatedBoolean, ownerNameText);
             operationResultText.setText(result);
 
             petIdField.clear();
@@ -202,7 +169,8 @@ public class PetController {
 
             Parent consultRegistrationForm = null;
             try {
-                consultRegistrationForm = FXMLLoader.load(getClass().getResource("/view/consultRegistration.fxml"));
+                consultRegistrationForm = FXMLLoader.load(getClass()
+                        .getResource("/view/consultRegistration.fxml"));
             } catch (IOException e) {
                 e.printStackTrace();
             }

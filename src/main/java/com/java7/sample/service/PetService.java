@@ -1,32 +1,36 @@
 package com.java7.sample.service;
 
 import com.java7.sample.model.Pet;
+import com.java7.sample.repository.ModelRepository;
 import com.java7.sample.repository.PetRepository;
-import org.h2.util.StringUtils;
+import com.java7.sample.service.exception.InputValidationException;
+import com.java7.sample.service.factory.PetFactory;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
+import static com.java7.sample.service.validator.Validator.*;
+import static com.java7.sample.service.validator.Validator.modelHasConsultValidation;
+
 public class PetService {
-    private final PetRepository petRepository = new PetRepository();
+    private final ModelRepository modelRepository;
+    private final PetRepository petRepository;
+    private final PetFactory petFactory;
 
-    public String addPet(String race, Date dateOfBirth, String isVaccinated, String ownerName) {
-        // Pet validator
-        if (StringUtils.isNullOrEmpty(race) || dateOfBirth == null
-                || StringUtils.isNullOrEmpty(isVaccinated) || StringUtils.isNullOrEmpty(ownerName)) {
+    public PetService(ModelRepository modelRepository, PetRepository petRepository, PetFactory petFactory) {
+        this.modelRepository = modelRepository;
+        this.petRepository = petRepository;
+        this.petFactory = petFactory;
+    }
 
-            return "WRONG DATA, CORRECT INPUT !";
-
-        } else {
-            //UserFactory :: Factory pattern;
-            Pet pet = new Pet();
-            pet.setRace(race);
-            pet.setDateOfBirth(dateOfBirth);
-            pet.setIsVaccinated(isVaccinated);
-            pet.setOwnerName(ownerName);
-
-            Long insertPetId = petRepository.savePet(pet).getPetId();
-            return "PET WITH ID: " + insertPetId + " IS ADDED !";
+    public String addPet(String race, LocalDate dateOfBirth, Boolean isVaccinated, String ownerName) {
+        try {
+            Pet validPet = petFactory.createPet(race, dateOfBirth, isVaccinated, ownerName);
+            Long insertId = modelRepository.saveModel(validPet);
+            return "PET WITH ID: " + insertId + " IS ADDED !";
+        } catch (InputValidationException e) {
+            System.out.println(e.getMessage());
+            return e.getMessage();
         }
     }
 
@@ -34,44 +38,30 @@ public class PetService {
         return petRepository.findAllPets();
     }
 
-    public String removePet(Long petId) {
-        if (petId == null) {
-            return "WRONG ID, CORRECT INPUT !";
+    public String removePet(String id) {
+        try {
+            Long validId = stringValidationAndParseLong(stringValidation(id));
+            Pet validPet = (Pet) modelValidation(petRepository.findById(validId));
+            List<Pet> petsWhoHaveConsults = petRepository.findAllPetsByConsults();
+            modelHasConsultValidation(petsWhoHaveConsults, validPet);
+            modelRepository.deleteModel(validPet);
+            return "PET WITH ID: " + validId + " IS DELETED !";
+        } catch (InputValidationException e) {
+            System.out.println(e.getMessage());
+            return e.getMessage();
         }
-        Pet pet = petRepository.findById(petId);
-
-        if (pet == null) {
-            return "WRONG ID, CORRECT INPUT !";
-        }
-
-        petRepository.deletePet(pet);
-        return "PET with ID: " + petId + " IS DELETED !";
     }
 
-    public String updatePet(Long petId, String race, Date dateOfBirth, String isVaccinated, String ownerName) {
-        if (petId == null) {
-            return "WRONG ID, CORRECT INPUT !";
+    public String updatePet(String id, String race, LocalDate dateOfBirth, Boolean isVaccinated, String ownerName) {
+        try {
+            Long validId = stringValidationAndParseLong(stringValidation(id));
+            Pet notUpdatedPet = (Pet) modelValidation(petRepository.findById(validId));
+            Pet updatedPet = petFactory.createUpdatedPet(notUpdatedPet, race, dateOfBirth, isVaccinated, ownerName);
+            modelRepository.updateModel(updatedPet);
+            return "PET WITH ID: " + validId + " IS UPDATED !";
+        } catch (InputValidationException e) {
+            System.out.println(e.getMessage());
+            return e.getMessage();
         }
-        Pet pet = petRepository.findById(petId);
-
-        if (pet == null) {
-            return "WRONG ID, CORRECT INPUT !";
-        }
-
-        if (!StringUtils.isNullOrEmpty(race)) {
-            pet.setRace(race);
-        }
-        if (dateOfBirth != null) {
-            pet.setDateOfBirth(dateOfBirth);
-        }
-        if (!StringUtils.isNullOrEmpty(isVaccinated)) {
-            pet.setIsVaccinated(isVaccinated);
-        }
-        if (!StringUtils.isNullOrEmpty(ownerName)) {
-            pet.setOwnerName(ownerName);
-        }
-
-        petRepository.updatePet(pet);
-        return "PET with ID: " + petId + " IS UPDATED !";
     }
 }

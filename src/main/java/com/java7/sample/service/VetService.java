@@ -1,31 +1,34 @@
 package com.java7.sample.service;
 
 import com.java7.sample.model.Vet;
+import com.java7.sample.repository.ModelRepository;
 import com.java7.sample.repository.VetRepository;
-import org.h2.util.StringUtils;
+import com.java7.sample.service.exception.InputValidationException;
+import com.java7.sample.service.factory.VetFactory;
 
 import java.util.List;
 
+import static com.java7.sample.service.validator.Validator.*;
+
 public class VetService {
-    private final VetRepository vetRepository = new VetRepository();
+    private final ModelRepository modelRepository;
+    private final VetRepository vetRepository;
+    private final VetFactory vetFactory;
+
+    public VetService(ModelRepository modelRepository, VetRepository vetRepository, VetFactory vetValidation) {
+        this.modelRepository = modelRepository;
+        this.vetRepository = vetRepository;
+        this.vetFactory = vetValidation;
+    }
 
     public String addVet(String firstName, String lastName, String address, String speciality) {
-        // Vet validator
-        if (StringUtils.isNullOrEmpty(firstName) || StringUtils.isNullOrEmpty(lastName)
-                || StringUtils.isNullOrEmpty(address) || StringUtils.isNullOrEmpty(speciality)) {
-
-            return "WRONG DATA, CORRECT INPUT !";
-
-        } else {
-            //VetFactory :: Factory pattern;
-            Vet vet = new Vet();
-            vet.setFirstName(firstName);
-            vet.setLastName(lastName);
-            vet.setAddress(address);
-            vet.setSpeciality(speciality);
-
-            Long insertVetId = vetRepository.saveVet(vet).getVetId();
-            return "VET WITH ID: " + insertVetId + " IS ADDED !";
+        try {
+            Vet validVet = vetFactory.createVet(firstName, lastName, address, speciality);
+            Long insertId = modelRepository.saveModel(validVet);
+            return "VET WITH ID: " + insertId + " IS ADDED !";
+        } catch (InputValidationException e) {
+            System.out.println(e.getMessage());
+            return e.getMessage();
         }
     }
 
@@ -33,44 +36,30 @@ public class VetService {
         return vetRepository.findAllVets();
     }
 
-    public String removeVet(Long vetId) {
-        if (vetId == null) {
-            return "WRONG ID, CORRECT INPUT !";
+    public String removeVet(String id) {
+        try {
+            Long validId = stringValidationAndParseLong(stringValidation(id));
+            Vet validVet = (Vet) modelValidation(vetRepository.findById(validId));
+            List<Vet> vetsWhoHaveConsults = vetRepository.findAllVetsByConsults();
+            modelHasConsultValidation(vetsWhoHaveConsults, validVet);
+            modelRepository.deleteModel(validVet);
+            return "VET WITH ID: " + validId + " IS DELETED !";
+        } catch (InputValidationException e) {
+            System.out.println(e.getMessage());
+            return e.getMessage();
         }
-        Vet vet = vetRepository.findById(vetId);
-
-        if (vet == null) {
-            return "WRONG ID, CORRECT INPUT !";
-        }
-
-        vetRepository.deleteVet(vet);
-        return "VET with ID: " + vetId + " IS DELETED !";
     }
 
-    public String updateVet(Long vetId, String firstName, String lastName, String address, String speciality) {
-        if (vetId == null) {
-            return "WRONG ID, CORRECT INPUT !";
+    public String updateVet(String id, String firstName, String lastName, String address, String speciality) {
+        try {
+            Long validId = stringValidationAndParseLong(stringValidation(id));
+            Vet notUpdatedVet = (Vet) modelValidation(vetRepository.findById(validId));
+            Vet updatedVet = vetFactory.createUpdatedVet(notUpdatedVet, firstName, lastName, address, speciality);
+            modelRepository.updateModel(updatedVet);
+            return "VET WITH ID: " + validId + " IS UPDATED !";
+        } catch (InputValidationException e) {
+            System.out.println(e.getMessage());
+            return e.getMessage();
         }
-        Vet vet = vetRepository.findById(vetId);
-
-        if (vet == null) {
-            return "WRONG ID, CORRECT INPUT !";
-        }
-
-        if (!StringUtils.isNullOrEmpty(firstName)) {
-            vet.setFirstName(firstName);
-        }
-        if (!StringUtils.isNullOrEmpty(lastName)) {
-            vet.setLastName(lastName);
-        }
-        if (!StringUtils.isNullOrEmpty(address)) {
-            vet.setAddress(address);
-        }
-        if (!StringUtils.isNullOrEmpty(speciality)) {
-            vet.setSpeciality(speciality);
-        }
-
-        vetRepository.updateVet(vet);
-        return "VET with ID: " + vetId + " IS UPDATED !";
     }
 }

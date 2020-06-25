@@ -4,100 +4,79 @@ import com.java7.sample.model.Consult;
 import com.java7.sample.model.Pet;
 import com.java7.sample.model.Vet;
 import com.java7.sample.repository.ConsultRepository;
+import com.java7.sample.repository.ModelRepository;
 import com.java7.sample.repository.PetRepository;
 import com.java7.sample.repository.VetRepository;
-import org.h2.util.StringUtils;
+import com.java7.sample.service.exception.InputValidationException;
+import com.java7.sample.service.factory.ConsultFactory;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
+import static com.java7.sample.service.validator.Validator.*;
+
 public class ConsultService {
-    private final ConsultRepository consultRepository = new ConsultRepository();
-    private final PetRepository petRepository = new PetRepository();
-    private final VetRepository vetRepository = new VetRepository();
+    private final ModelRepository modelRepository;
+    private final ConsultRepository consultRepository;
+    private final PetRepository petRepository;
+    private final VetRepository vetRepository;
+    private final ConsultFactory consultFactory;
 
-    public String addConsult(Long vetId, Long petId, Date date, String description) {
-        // Pet validator
-        if (vetId == null || petId == null || date == null || StringUtils.isNullOrEmpty(description)) {
-            return "WRONG DATA, CORRECT INPUT !";
-        }
-        Vet vet = vetRepository.findById(vetId);
-        Pet pet = petRepository.findById(petId);
-
-        if (vet == null || pet == null) {
-            return "WRONG ID, CORRECT INPUT !";
-        }
-        //UserFactory :: Factory pattern;
-        Consult consult = new Consult();
-        consult.setVet(vet);
-        consult.setPet(pet);
-        consult.setDate(date);
-        consult.setDescription(description);
-
-        Long insertConsultId = consultRepository.saveConsult(consult).getConsultId();
-        return "Consult WITH ID: " + insertConsultId + " IS ADDED !";
+    public ConsultService(ModelRepository modelRepository, ConsultRepository consultRepository,
+                          PetRepository petRepository, VetRepository vetRepository, ConsultFactory consultFactory) {
+        this.modelRepository = modelRepository;
+        this.consultRepository = consultRepository;
+        this.petRepository = petRepository;
+        this.vetRepository = vetRepository;
+        this.consultFactory = consultFactory;
     }
 
-    public List<Consult> viewConsults() {
-        return consultRepository.findAllConsults();
+    public String addConsult(String vetId, String petId, LocalDate date, String description) {
+        try {
+            Consult validConsult = consultFactory.createConsult(vetId, petId, date, description);
+            Vet validVet = (Vet) modelValidation(vetRepository.findById(validConsult.getVet().getId()));
+            Pet validPet = (Pet) modelValidation(petRepository.findById(validConsult.getPet().getId()));
+            validConsult.setVet(validVet);
+            validConsult.setPet(validPet);
+            Long insertId = modelRepository.saveModel(validConsult);
+            return "CONSULT WITH ID: " + insertId + " IS ADDED !";
+        } catch (InputValidationException e) {
+            System.out.println(e.getMessage());
+            return e.getMessage();
+        }
     }
 
-    public List<Vet> viewVetsByConsults() {
-        return consultRepository.findAllVetsByConsults();
+    public List<Object[]> viewConsults() {
+        return consultRepository.findAllConsultsWithVetAndPets();
     }
 
-    public List<Pet> viewPetsByConsults() {
-        return consultRepository.findAllPetsByConsults();
+    public String removeConsult(String id) {
+        try {
+            Long validId = stringValidationAndParseLong(stringValidation(id));
+            Consult validConsult = (Consult) modelValidation(consultRepository.findById(validId));
+            modelRepository.deleteModel(validConsult);
+            return "CONSULT WITH ID: " + validId + " IS DELETED !";
+        } catch (InputValidationException e) {
+            System.out.println(e.getMessage());
+            return e.getMessage();
+        }
     }
 
-    public String removeConsult(Long consultId) {
-        if (consultId == null) {
-            return "WRONG ID, CORRECT INPUT !";
+    public String updateConsult(String id, String vetId, String petId, LocalDate date, String description) {
+        try {
+            Long validId = stringValidationAndParseLong(stringValidation(id));
+            Consult notUpdatedConsult = (Consult) modelValidation(consultRepository.findById(validId));
+            Consult updatedConsult = consultFactory
+                    .createUpdatedConsult(notUpdatedConsult, vetId, petId, date, description);
+            Vet validVet = (Vet) modelValidation(vetRepository.findById(updatedConsult.getVet().getId()));
+            Pet validPet = (Pet) modelValidation(petRepository.findById(updatedConsult.getPet().getId()));
+            updatedConsult.setVet(validVet);
+            updatedConsult.setPet(validPet);
+            modelRepository.updateModel(updatedConsult);
+            return "CONSULT WITH ID: " + validId + " IS UPDATED !";
+        } catch (InputValidationException e) {
+            System.out.println(e.getMessage());
+            return e.getMessage();
         }
-        Consult consult = consultRepository.findById(consultId);
-
-        if (consult == null) {
-            return "WRONG ID, CORRECT INPUT !";
-        }
-
-        consultRepository.deleteConsult(consult);
-        return "Consult with ID: " + consultId + " IS DELETED !";
-    }
-
-    public String updateConsult(Long consultId, Long vetId, Long petId, Date date, String description) {
-        if (consultId == null) {
-            return "WRONG ID, CORRECT INPUT !";
-        }
-        Consult consult = consultRepository.findById(consultId);
-
-        if (consult == null) {
-            return "WRONG ID, CORRECT INPUT !";
-        }
-
-        Vet vet = null;
-        if (vetId != null) {
-            vet = vetRepository.findById(vetId);
-        }
-        if (vet != null) {
-            consult.setVet(vet);
-        }
-
-        Pet pet = null;
-        if (petId != null) {
-            pet = petRepository.findById(petId);
-        }
-        if (pet != null) {
-            consult.setPet(pet);
-        }
-
-        if (date != null) {
-            consult.setDate(date);
-        }
-        if (!StringUtils.isNullOrEmpty(description)) {
-            consult.setDescription(description);
-        }
-
-        consultRepository.updateConsult(consult);
-        return "Consult with ID: " + consultId + " IS UPDATED !";
     }
 }

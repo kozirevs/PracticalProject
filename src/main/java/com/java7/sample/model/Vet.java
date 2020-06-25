@@ -6,12 +6,12 @@ import java.util.Set;
 
 @Entity
 @Table(name = "vets")
-public class Vet {
+public class Vet implements Model {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "vetId", nullable = false)
-    private Long vetId;
+    @Column(name = "id", nullable = false)
+    private Long id;
 
     @Column(name = "firstName", nullable = false)
     private String firstName;
@@ -28,12 +28,12 @@ public class Vet {
     @OneToMany(mappedBy = "vet")
     private Set<Consult> consults = new HashSet<>();
 
-    public Long getVetId() {
-        return vetId;
+    public Long getId() {
+        return id;
     }
 
-    public void setVetId(Long vetId) {
-        this.vetId = vetId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getFirstName() {
@@ -79,11 +79,35 @@ public class Vet {
     @Override
     public String toString() {
         return "Vet{" +
-                "vetId=" + vetId +
+                "id=" + id +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", address='" + address + '\'' +
                 ", speciality='" + speciality + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Vet vet = (Vet) o;
+
+        if (id != null ? !id.equals(vet.id) : vet.id != null) return false;
+        if (firstName != null ? !firstName.equals(vet.firstName) : vet.firstName != null) return false;
+        if (lastName != null ? !lastName.equals(vet.lastName) : vet.lastName != null) return false;
+        if (address != null ? !address.equals(vet.address) : vet.address != null) return false;
+        return speciality != null ? speciality.equals(vet.speciality) : vet.speciality == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
+        result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
+        result = 31 * result + (address != null ? address.hashCode() : 0);
+        result = 31 * result + (speciality != null ? speciality.hashCode() : 0);
+        return result;
     }
 }

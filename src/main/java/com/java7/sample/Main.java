@@ -29,7 +29,7 @@ public class Main extends Application {
         System.out.println("status: " + server.getStatus());
 
         Flyway flyway = Flyway.configure()
-                .dataSource("jdbc:h2:file:/Users/akoz/Documents/test.mv.db", "sa", "password")
+                .dataSource("jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1", "sa", "password")
                 .load();
         flyway.migrate();
 

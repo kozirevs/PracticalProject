@@ -1,9 +1,13 @@
 package com.java7.sample.controllers;
 
-import com.java7.sample.model.Consult;
-import com.java7.sample.model.Pet;
-import com.java7.sample.model.Vet;
+import com.java7.sample.model.ConsultVetPet;
+import com.java7.sample.repository.ConsultRepository;
+import com.java7.sample.repository.ModelRepository;
+import com.java7.sample.repository.PetRepository;
+import com.java7.sample.repository.VetRepository;
 import com.java7.sample.service.ConsultService;
+import com.java7.sample.service.factory.ConsultFactory;
+import com.java7.sample.service.factory.ConsultVetPetFactory;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -14,16 +18,14 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import org.h2.util.StringUtils;
 
 import java.io.IOException;
 import java.net.URL;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class ConsultController {
 
@@ -52,35 +54,28 @@ public class ConsultController {
     private Button crudVetButton;
 
     @FXML
-    private TableView<Consult> consultsTableView;
+    private TableView<ConsultVetPet> consultsTableView;
 
     @FXML
-    private TableColumn<Consult, Long> consultIdColumn;
+    private TableColumn<ConsultVetPet, Long> consultIdColumn;
 
     @FXML
-    private TableColumn<Consult, Date> dateColumn;
+    private TableColumn<ConsultVetPet, Date> dateColumn;
 
     @FXML
-    private TableColumn<Consult, String> descriptionColumn;
-
-
-    @FXML
-    private TableView<Vet> vetTableView;
+    private TableColumn<ConsultVetPet, String> descriptionColumn;
 
     @FXML
-    private TableColumn<Vet, String> vetFirstNameColumn;
+    private TableColumn<ConsultVetPet, String> vetFirstNameColumn;
 
     @FXML
-    private TableColumn<Vet, String> vetLastNameColumn;
+    private TableColumn<ConsultVetPet, String> vetLastNameColumn;
 
     @FXML
-    private TableView<Pet> petTableView;
+    private TableColumn<ConsultVetPet, String> petRaceColumn;
 
     @FXML
-    private TableColumn<Pet, String> petRaceColumn;
-
-    @FXML
-    private TableColumn<Pet, String> petOwnerNameColumn;
+    private TableColumn<ConsultVetPet, String> petOwnerNameColumn;
 
     @FXML
     private Text operationResultText;
@@ -102,34 +97,20 @@ public class ConsultController {
 
     @FXML
     void initialize() {
-        ConsultService consultService = new ConsultService();
+        ConsultService consultService = new ConsultService(new ModelRepository(),
+                new ConsultRepository(), new PetRepository(), new VetRepository(), new ConsultFactory());
+
+        ConsultVetPetFactory consultVetPetFactory = new ConsultVetPetFactory();
 
         addConsultButton.setOnAction(event -> {
-            System.out.println("consult insert in progress");
+            System.out.println("CONSULT INSERT IN PROGRESS");
 
-            String vetIdText = vetIdField.getText().trim();
-            Long vetId = null;
-            if (StringUtils.isNumber(vetIdText)) {
-                vetId = Long.parseLong(vetIdText);
-            }
-            String petIdText = petIdField.getText().trim();
-            Long petId = null;
-            if (StringUtils.isNumber(petIdText)) {
-                petId = Long.parseLong(petIdText);
-            }
+            String vetIdText = vetIdField.getText();
+            String petIdText = petIdField.getText();
+            String descriptionText = descriptionArea.getText();
+            LocalDate dateLocalDate = dateDatePicker.getValue();
 
-            String descriptionText = descriptionArea.getText().trim();
-
-            LocalDate localDate = dateDatePicker.getValue();
-            Date date = null;
-            if(localDate != null){
-                Instant instant = Instant.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()));
-                date = Date.from(instant);
-            }
-
-            String result = consultService.addConsult(vetId, petId, date, descriptionText);
-            System.out.println(result);
-
+            String result = consultService.addConsult(vetIdText, petIdText, dateLocalDate, descriptionText);
             operationResultText.setText(result);
 
             vetIdField.clear();
@@ -139,87 +120,49 @@ public class ConsultController {
         });
 
         viewConsultsButton.setOnAction(event -> {
-            System.out.println("select consults in progress");
+            System.out.println("SELECT CONSULTS IN PROGRESS");
 
-            consultIdColumn.setCellValueFactory(new PropertyValueFactory<Consult, Long>("consultId"));
-            dateColumn.setCellValueFactory(new PropertyValueFactory<Consult, Date>("date"));
-            descriptionColumn.setCellValueFactory(new PropertyValueFactory<Consult, String>("description"));
-            vetFirstNameColumn.setCellValueFactory(new PropertyValueFactory<Vet, String>("firstName"));
-            vetLastNameColumn.setCellValueFactory(new PropertyValueFactory<Vet, String>("lastName"));
-            petRaceColumn.setCellValueFactory(new PropertyValueFactory<Pet, String>("race"));
-            petOwnerNameColumn.setCellValueFactory(new PropertyValueFactory<Pet, String>("ownerName"));
+            consultIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+            dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
+            descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
+            vetFirstNameColumn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
+            vetLastNameColumn.setCellValueFactory(new PropertyValueFactory<>("lastName"));
+            petRaceColumn.setCellValueFactory(new PropertyValueFactory<>("race"));
+            petOwnerNameColumn.setCellValueFactory(new PropertyValueFactory<>("ownerName"));
 
-            List<Consult> consultList = consultService.viewConsults();
-            if (consultList.isEmpty()) {
-                operationResultText.setText("CONSULT DATABASE IS EMPTY");
-            }
-            List<Vet> vetList = consultService.viewVetsByConsults();
-            if (vetList.isEmpty()) {
-                operationResultText.setText("CONSULT DATABASE IS EMPTY");
-            }
-            List<Pet> petList = consultService.viewPetsByConsults();
-            if (petList.isEmpty()) {
-                operationResultText.setText("CONSULT DATABASE IS EMPTY");
-            }
-            ObservableList<Consult> consultObservableList = FXCollections.observableArrayList(consultList);
-            ObservableList<Vet> vetObservableList = FXCollections.observableArrayList(vetList);
-            ObservableList<Pet> petObservableList = FXCollections.observableArrayList(petList);
 
+            List<ConsultVetPet> consultList = consultService.viewConsults()
+                    .stream()
+                    .map(consultVetPetFactory::createConsultVetPet)
+                    .collect(Collectors.toList());
+
+
+            ObservableList<ConsultVetPet> consultObservableList = FXCollections.observableArrayList(consultList);
             consultsTableView.setItems(consultObservableList);
-            vetTableView.setItems(vetObservableList);
-            petTableView.setItems(petObservableList);
         });
 
         deleteConsultButton.setOnAction(event -> {
-            System.out.println("delete consult in progress");
+            System.out.println("DELETE CONSULT IN PROGRESS");
 
-            String consultIdText = consultIdField.getText().trim();
-            Long consultId = null;
-            if (StringUtils.isNumber(consultIdText)) {
-                consultId = Long.parseLong(consultIdText);
-            }
+            String idText = consultIdField.getText();
 
-            String result = consultService.removeConsult(consultId);
-            System.out.println(result);
-
+            String result = consultService.removeConsult(idText);
             operationResultText.setText(result);
 
             consultIdField.clear();
         });
 
         updateConsultButton.setOnAction(event -> {
-            System.out.println("update consult in progress");
+            System.out.println("UPDATE CONSULT IN PROGRESS");
 
-            String consultIdText = consultIdField.getText().trim();
-            Long consultId = null;
-            if (StringUtils.isNumber(consultIdText)) {
-                consultId = Long.parseLong(consultIdText);
-            }
+            String idText = consultIdField.getText();
+            String vetIdText = vetIdField.getText();
+            String petIdText = petIdField.getText();
+            LocalDate dateLocalDate = dateDatePicker.getValue();
+            String descriptionAreaText = descriptionArea.getText();
 
-            String vetIdText = vetIdField.getText().trim();
-            Long vetId = null;
-            if (StringUtils.isNumber(vetIdText)) {
-                vetId = Long.parseLong(vetIdText);
-            }
-
-            String petIdText = petIdField.getText().trim();
-            Long petId = null;
-            if (StringUtils.isNumber(petIdText)) {
-                petId = Long.parseLong(petIdText);
-            }
-
-            LocalDate localDate = dateDatePicker.getValue();
-            Date date = null;
-            if(localDate != null){
-                Instant instant = Instant.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()));
-                date = Date.from(instant);
-            }
-
-            String descriptionAreaText = descriptionArea.getText().trim();
-
-            String result = consultService.updateConsult(consultId, vetId, petId, date, descriptionAreaText);
-            System.out.println(result);
-
+            String result = consultService
+                    .updateConsult(idText, vetIdText, petIdText, dateLocalDate, descriptionAreaText);
             operationResultText.setText(result);
 
             consultIdField.clear();
